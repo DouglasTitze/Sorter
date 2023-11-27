@@ -86,6 +86,9 @@ def get_confidence_levels() -> (int, int):
 def sort_files(path="Documents") -> None:
     # Name of the ML output file
     ML_OUT = "ML_OUT.txt"
+    
+    # Seperator between file name and confidence value
+    SEP = " ~!@#$%^&*() "
 
     pattern = re.compile(r"^(.+?)(?:_\w+)?(?=\.\w+$)")
 
@@ -101,7 +104,8 @@ def sort_files(path="Documents") -> None:
             line = line.strip()
 
             # Extract names
-            document_name, destination_folder = line.split(" - ")
+            document_name, destination_folder = line.split(SEP)
+
             destination_folder, CL = destination_folder.split(" (")
 
             # Check if the destination folder exists, create it if not
@@ -124,7 +128,7 @@ def sort_files(path="Documents") -> None:
                         # Try to move documents
                         try:
                             shutil.move(source_path, destination_path)
-                            print(f"Moved {file} to {destination_folder} ({CL})")
+                            print(f"Moved {file} to {destination_folder} ({CL}")
                             break
                         except shutil.Error as e:
                             print(f"Error moving {file}: {e}")

@@ -5,18 +5,11 @@ def MASTER_FUNCTION():
     # Create necessary folders
     create_folders()
 
-    lowerCL, upperCL = get_confidence_levels()
+    # lowerCL, upperCL = get_confidence_levels()
+    lowerCL, upperCL = .45, .57
     folderPath = 'Documents'
         
     try:
-        # Convert PDF to PNG
-        for root, dirs, files in os.walk(os.getcwd()):
-            print(f"Current directory: {root}")
-            print("Folders:")
-            print(f"\t{dirs}")
-            print("Files:")
-            print(f"\t{files}")
-            break
         process_pdfs(input_folder = folderPath, output_folder='NotProcessed')
 
         # Any image file type that can be processed by tesseract w/o conversion go to 'NotProcessed'
