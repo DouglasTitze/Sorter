@@ -1,0 +1,28 @@
+# Use the Ubuntu 22.04 as the base image
+FROM ubuntu:22.04
+ 
+# Set python environment variable
+ENV PYTHON_VERSION=3.10
+ 
+# Update + install required packages
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    tesseract-ocr \
+    imagemagick \
+    libgl1-mesa-glx
+
+# Maintainer
+LABEL maintainer="Douglas Titze <DouglasTitze@gmail.com>"
+
+# Copy all Python scripts into the container
+COPY *.py .
+COPY requirements.txt .
+COPY Model .
+COPY Documents .
+
+# Install all python dependencies
+RUN pip install --requirement requirements.txt
+
+# Run the script: Use flag -it when building, because user input is required
+CMD ["python3.10", "MASTER_SCRIPT.py"]
