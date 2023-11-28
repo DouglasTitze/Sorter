@@ -43,9 +43,9 @@ class Converter:
         print(f"Start transcribing {file_name}")
 
         # Convert the file into text
-        raw_image_text = self._image_to_text(file_path)
+        raw_image_text = self.image_to_text(file_path)
         # Write the raw text of the document to a txt file
-        self._create_txt_file(file_name, raw_image_text)
+        self.create_txt_file(file_name, raw_image_text)
 
         # Delete file from "Processed"
         os.remove(file_path)
@@ -53,7 +53,7 @@ class Converter:
         timer_end = time()
         print(f"Transcribing completed {timer_end - timer_start}")
 
-    def _image_to_text(self, file_path: str) -> str:
+    def image_to_text(self, file_path: str) -> str:
         """
         Returns the files contents as text
         """
@@ -78,7 +78,7 @@ class Converter:
         except Exception as e:
             raise e
 
-    def _create_txt_file(self, file_name: str, text: str, output_folder_path: str="") -> str:
+    def create_txt_file(self, file_name: str, text: str, output_folder_path: str="") -> str:
         # If no custom output folder path is provided, create one relative to the parent of the input folder
         if not output_folder_path:
             output_folder_path = os.path.join(os.path.dirname(self.folder_path), "TextDocuments")
