@@ -30,7 +30,7 @@ class Converter:
         """
         inp_files = os.listdir(self.folder_path)
 
-        with ThreadPoolExecutor(max_workers=1) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             for file_name in inp_files:
                 file_path = os.path.join(self.folder_path, file_name)
                 executor.submit(self.process_file, file_path, file_name)
