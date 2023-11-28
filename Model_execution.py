@@ -1,12 +1,13 @@
 import tensorflow as tf
 import numpy as np
 import os
+SEPERATOR_CONFIDENCE = "*SEPERATOR_CONFIDENCE*"
+
 
 # This function is responsible for executing the model to sort provided documents
 def run_model(lowerConfidenceLevel = 0.15, upperConfidenceLevel = 0.85):
 
     # Seperator between file name and confidence value
-    SEP = " ~!@#$%^&*() "
 
     # Current directory to load the model
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,8 +30,8 @@ def run_model(lowerConfidenceLevel = 0.15, upperConfidenceLevel = 0.85):
     for file_name, prediction in zip(file_names, confidence_levels):
         prediction = prediction[0].numpy()
         if prediction < lowerConfidenceLevel: 
-            outputFile.write(f"{file_name}{SEP}Non-medical (CL:{prediction})\n")
+            outputFile.write(f"{file_name}{SEPERATOR_CONFIDENCE}Non-medical (CL:{prediction})\n")
         elif prediction > upperConfidenceLevel:  
-            outputFile.write(f"{file_name}{SEP}Medical (CL:{prediction})\n")
+            outputFile.write(f"{file_name}{SEPERATOR_CONFIDENCE}Medical (CL:{prediction})\n")
         else: 
-            outputFile.write(f"{file_name}{SEP}Unknown (CL:{prediction})\n")
+            outputFile.write(f"{file_name}{SEPERATOR_CONFIDENCE}Unknown (CL:{prediction})\n")

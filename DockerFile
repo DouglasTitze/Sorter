@@ -23,9 +23,6 @@ RUN apt-get update && apt-get install -y libgl1-mesa-glx
 RUN mkdir Sorter
 WORKDIR /Sorter
 
-# Copy all the Python scripts into the container
-COPY *.py .
-
 # Copy the ML Model into the container
 RUN mkdir Model
 COPY Model Model
@@ -33,6 +30,9 @@ COPY Model Model
 # Copy your Documents into the container
 RUN mkdir Documents
 COPY Documents Documents
+
+# Copy all the Python scripts into the container
+COPY *.py .
 
 # Run the script: Use flag -it when building, because user input is required
 # docker build -t img .

@@ -3,6 +3,7 @@ from time import time
 from PIL import Image
 import pytesseract
 from concurrent.futures import ThreadPoolExecutor
+SEPERATOR_EXT = "*SEPERATOR_EXT*"
 
 class Converter:
     """
@@ -61,16 +62,8 @@ class Converter:
             # Create output to hold the text of the file
             output = ""
 
-            # Save file extension to test for edge case (pdf)
-            file_extension = os.path.splitext(os.path.basename(file_path))[1]
-
-            # If the file is a pdf, use its own function
-            if file_extension == ".pdf":
-                # output = self._pdf_to_text(file_path)
-                output = ""
-            else:
-                # Extract the text from the image, and add it to the output string
-                output = pytesseract.image_to_string(Image.open(file_path))
+            # Extract the text from the image, and add it to the output string
+            output = pytesseract.image_to_string(Image.open(file_path))
 
             # Return text from the image
             return output
@@ -88,7 +81,8 @@ class Converter:
             os.makedirs(output_folder_path)
         
         splitFileName = os.path.splitext(file_name)
-        mutatedFileName = splitFileName[0] + "[" + splitFileName[1] + "]" + ".txt"
+        if file_name.find(".pdf") != -1: mutatedFileName = splitFileName[0] + ".txt"
+        else:                            mutatedFileName = splitFileName[0] + SEPERATOR_EXT + splitFileName[1] + SEPERATOR_EXT + ".txt"
         full_txt_path = os.path.join(output_folder_path, mutatedFileName)
 
         # Write text to the .txt file

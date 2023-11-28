@@ -3,6 +3,8 @@ import re
 import time
 import shutil
 
+SEPERATOR_CONFIDENCE = "*SEPERATOR_CONFIDENCE*"
+
 def create_folders() -> None:
     folders = ["Processed", "NotProcessed", "TextDocuments"]
     for folder in folders:
@@ -14,7 +16,7 @@ def clean_up() -> None:
     Deletes leftover folders and files
     '''
     print("\nDeleting Excess Files")
-
+    return
     # Sleep to attempt to allow threads to terminate
     time.sleep(1)
 
@@ -86,11 +88,6 @@ def get_confidence_levels() -> (int, int):
 def sort_files(path="Documents") -> None:
     # Name of the ML output file
     ML_OUT = "ML_OUT.txt"
-    
-    # Seperator between file name and confidence value
-    SEP = " ~!@#$%^&*() "
-
-    pattern = re.compile(r"^(.+?)(?:_\w+)?(?=\.\w+$)")
 
     # Create a threshold for incorrect directory, if more then this number of documents isn't found in the 
     # input path, then exit the program and notify the user
@@ -104,7 +101,7 @@ def sort_files(path="Documents") -> None:
             line = line.strip()
 
             # Extract names
-            document_name, destination_folder = line.split(SEP)
+            document_name, destination_folder = line.split(SEPERATOR_CONFIDENCE)
 
             destination_folder, CL = destination_folder.split(" (")
 
@@ -113,31 +110,21 @@ def sort_files(path="Documents") -> None:
             if not os.path.exists(destination_folder):
                 os.makedirs(destination_folder)
 
-            # Extract base name without extension
-            base_name = re.match(pattern, document_name)
-            if base_name:
-                base_name = base_name.group(1)
-                # Search for files in the directory with the base name
-                for file in os.listdir(path):
-                    if file.startswith(base_name) and not file.endswith('.tmp'):
+            # Construct the source and destination paths
+            source_path = os.path.join(path, document_name)
+            destination_path = os.path.join(destination_folder, document_name)
 
-                        # Construct the source and destination paths
-                        source_path = os.path.join(path, file)
-                        destination_path = os.path.join(destination_folder, file)
+            # Try to move documents
+            try:
+                shutil.move(source_path, destination_path)
+                print(f"Moved {document_name} to {destination_folder} ({CL}")
 
-                        # Try to move documents
-                        try:
-                            shutil.move(source_path, destination_path)
-                            print(f"Moved {file} to {destination_folder} ({CL}")
-                            break
-                        except shutil.Error as e:
-                            print(f"Error moving {file}: {e}")
-                else:
-                    # If file not found
-                    if THRESHOLD <= 0:
+            except shutil.Error as e:
+                print(f"Error moving {document_name}: {e}")
+                if THRESHOLD <= 0:
                         print("\n")
                         print(f"A lot of documents were not found in \"{path}\"".center(100, "~"))
                         print(f"Maybe this was an incorrect path?".center(100, "~"))
                         raise Exception
-                    THRESHOLD -= 1
-                    print(f"Document {document_name} not found in {path}")
+                THRESHOLD -= 1
+                

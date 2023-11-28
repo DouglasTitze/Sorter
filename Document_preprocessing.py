@@ -8,11 +8,12 @@ import numpy as np
 from wand.image import Image
 import pypdfium2.raw as pdfium_c
 from concurrent.futures import ThreadPoolExecutor
-
+SEPERATOR_PAGES = "*SEPERATOR_PAGES*"
+SEPERATOR_EXT = "*SEPERATOR_EXT*"
 
 """
 Convert PDF files to PNG images.
-Seperates multi-page documents into multiple PNGs labeled '_page0, _page1, _page2'.
+Seperates multi-page documents into multiple PNGs labeled 'SEPERATOR_PAGES0, SEPERATOR_PAGES1, SEPERATOR_PAGES2'.
 
 Input Folder: Documents
 Output Folder: NotProcessed
@@ -20,7 +21,6 @@ Output Folder: NotProcessed
 
 def convertPDF(filepath, output_folder, dpi=150):
 
-    print("Converting PDF to PNG")
     pdf = pdfium_c.FPDF_LoadDocument((filepath+"\x00").encode("utf-8"), None)
 
     # Check page count to make sure it was loaded correctly
@@ -66,7 +66,7 @@ def convertPDF(filepath, output_folder, dpi=150):
         img = PIL.Image.frombuffer("RGBA", (width, height), buffer.contents, "raw", "RGBA", 0, 1)
         # Save it as a file
         base_name = os.path.splitext(os.path.basename(filepath))[0]
-        output_filename = "{}_page{}.png".format(base_name, i)
+        output_filename = f"{base_name}{SEPERATOR_PAGES}{i}{SEPERATOR_PAGES}{SEPERATOR_EXT}.pdf{SEPERATOR_EXT}.png"
         output_path = os.path.join(output_folder, output_filename)
         img.save(output_path)
 
