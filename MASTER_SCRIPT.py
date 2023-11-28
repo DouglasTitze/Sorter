@@ -13,7 +13,7 @@ def MASTER_FUNCTION():
         process_pdfs(input_folder = folderPath, output_folder='NotProcessed')
 
         # Any image file type that can be processed by tesseract w/o conversion go to 'NotProcessed'
-        allowed_extensions = [".png", ".jpeg", ".jpg", ".tif", ".tiff", ".bmp", ".pnm", ".webp", ".gif"]
+        allowed_extensions = [".png"]
         for file_name in os.listdir('Documents'):
             file_extension = os.path.splitext(file_name)[1].lower()
             if any(file_extension == ext for ext in allowed_extensions):
