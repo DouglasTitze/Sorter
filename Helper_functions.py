@@ -16,7 +16,7 @@ def clean_up() -> None:
     Deletes leftover folders and files
     '''
     print("\nDeleting Excess Files")
-    return
+
     # Sleep to attempt to allow threads to terminate
     time.sleep(1)
 
