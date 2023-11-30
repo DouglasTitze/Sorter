@@ -1,12 +1,11 @@
 import numpy as np
 import os
 import re
-SEPERATOR_PAGES = "*SEPERATOR_PAGES*"
-SEPERATOR_EXT = "*SEPERATOR_EXT*"
-
+from tqdm import tqdm
 
 def append_files(file_path):
-    pattern = re.compile(r'(.+)\*SEPERATOR_PAGES\*(\d+).*\.txt')
+    pattern = re.compile(r"^(.+)_page(\d+)\[\.png\]\.txt$")
+    
     filenames = [os.path.join(file_path, f) for f in os.listdir(file_path) if pattern.match(f)]
     base_files = {}
 
@@ -16,6 +15,10 @@ def append_files(file_path):
         
         if base_name not in base_files or page_num < base_files[base_name][1]:
             base_files[base_name] = (fname, page_num)
+
+    total_files = len(filenames) - len(base_files)
+
+    pbar = tqdm(total=total_files, desc="Appending files")
 
     for base_name, (base_filename, _) in base_files.items():
         with open(base_filename, "a+", encoding="utf-8") as f:
@@ -31,8 +34,10 @@ def append_files(file_path):
             ):
                 with open(fname, "r", encoding="utf-8") as infile:
                     outfile.write(infile.read().strip() + "\n")
-                print(f"Appended file: {fname}")
                 os.remove(fname)
+                pbar.update(1)
+
+    pbar.close()
 
 def convert_texts_to_npz(txtFolder="TextDocuments"):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -62,10 +67,11 @@ def convert_texts_to_npz(txtFolder="TextDocuments"):
             with open(file_path,'r', encoding="utf-8") as f: all_text += f.readline()
 
             # Save the file with its actual extension and not .txt
-            fileName, realExtension, _ = file.split(SEPERATOR_EXT)
-            realFileName = fileName.split(SEPERATOR_PAGES)[0]
-            
-            txt_file_names.append(realFileName + realExtension)
+            leftBracket = file.find('[')
+            realFileName = file[:leftBracket] + file[leftBracket+1:-5]
+            txt_file_names.append(realFileName)
+
+
             txt_contents.append(all_text)
         except:
             print(f"File \"{file}\" failed!")
