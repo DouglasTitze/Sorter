@@ -21,7 +21,7 @@ Input Folder: Documents
 Output Folder: NotProcessed
 """
 
-def convertPDF(filepath, output_folder, dpi=150, progress_bar=None):
+def convertPDF(filepath, output_folder, dpi=300, progress_bar=None):
 
     pdf = pdfium_c.FPDF_LoadDocument((filepath+"\x00").encode("utf-8"), None)
 
@@ -149,8 +149,8 @@ def process_single_image(input_path, output_path):
     grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Process the image
-    changeddpi = dpi(grayscale_image)
-    adaptive = thresholding(changeddpi)
+    # changeddpi = dpi(grayscale_image)
+    adaptive = thresholding(grayscale_image)
     font = dilation_erosion(adaptive)
     RMborder = remove_borders(font)
     rotImg = deskew(RMborder)
@@ -184,7 +184,7 @@ def process_pdfs(input_folder='Documents', output_folder='NotProcessed'):
 def clean_images(input="NotProcessed", output="Processed"):
     input_images = os.listdir(input)
 
-    with ThreadPoolExecutor(max_workers=1) as executor, tqdm(total=len(input_images), desc="Processing Images") as progress:
+    with ThreadPoolExecutor(max_workers=2) as executor, tqdm(total=len(input_images), desc="Processing Images") as progress:
         futures = []
         for img in input_images:
             future = executor.submit(process_single_image, os.path.join(input, img), os.path.join(output, f"{os.path.splitext(img)[0]}.png"))
