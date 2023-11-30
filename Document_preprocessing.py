@@ -187,7 +187,10 @@ def clean_images(input="NotProcessed", output="Processed"):
     with ThreadPoolExecutor(max_workers=2) as executor, tqdm(total=len(input_images), desc="Processing Images") as progress:
         futures = []
         for img in input_images:
-            future = executor.submit(process_single_image, os.path.join(input, img), os.path.join(output, f"{os.path.splitext(img)[0]}.png"))
+            filename, file_extension = os.path.splitext(img)
+            input_path = os.path.join(input, img)
+            output_path = os.path.join(output, f"{filename}{file_extension}")
+            future = executor.submit(process_single_image, input_path, output_path)
             futures.append(future)
 
         for future in futures:
