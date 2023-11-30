@@ -5,6 +5,8 @@ import pytesseract
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
+SEPERATOR_EXT = "*SEPERATOR_EXT*"
+
 class Converter:
     """
     Contains methods to convert all files, wihtin the input folder, to plain text output
@@ -93,7 +95,8 @@ class Converter:
             os.makedirs(output_folder_path)
         
         splitFileName = os.path.splitext(file_name)
-        mutatedFileName = splitFileName[0] + "[" + splitFileName[1] + "]" + ".txt"
+        if file_name.find(".pdf") != -1: mutatedFileName = splitFileName[0] + ".txt"
+        else:                            mutatedFileName = splitFileName[0] + SEPERATOR_EXT + splitFileName[1] + SEPERATOR_EXT + ".txt"
         full_txt_path = os.path.join(output_folder_path, mutatedFileName)
 
         # Write text to the .txt file

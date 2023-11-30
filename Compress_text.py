@@ -2,9 +2,11 @@ import numpy as np
 import os
 import re
 from tqdm import tqdm
+SEPERATOR_PAGES = "*SEPERATOR_PAGES*"
+SEPERATOR_EXT = "*SEPERATOR_EXT*"
 
 def append_files(file_path):
-    pattern = re.compile(r"^(.+)_page(\d+)\[\.png\]\.txt$")
+    pattern = re.compile(r'(.+)\*SEPERATOR_PAGES\*(\d+).*\.txt')
     
     filenames = [os.path.join(file_path, f) for f in os.listdir(file_path) if pattern.match(f)]
     base_files = {}
@@ -67,9 +69,10 @@ def convert_texts_to_npz(txtFolder="TextDocuments"):
             with open(file_path,'r', encoding="utf-8") as f: all_text += f.readline()
 
             # Save the file with its actual extension and not .txt
-            leftBracket = file.find('[')
-            realFileName = file[:leftBracket] + file[leftBracket+1:-5]
-            txt_file_names.append(realFileName)
+            fileName, realExtension, _ = file.split(SEPERATOR_EXT)
+            realFileName = fileName.split(SEPERATOR_PAGES)[0]
+
+            txt_file_names.append(realFileName + realExtension)
 
 
             txt_contents.append(all_text)
