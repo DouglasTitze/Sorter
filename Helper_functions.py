@@ -16,7 +16,7 @@ def clean_up() -> None:
     Deletes leftover folders and files
     '''
     print("\nDeleting Excess Files")
-    input()
+    
     # Sleep to attempt to allow threads to terminate
     time.sleep(1)
 
@@ -35,7 +35,7 @@ def clean_up() -> None:
             print(f"Recursively deleted directory: {directory}")
 
     # Delete specific files
-    files_to_delete = ["texts_as.npz", "ML_OUT.txt"]
+    files_to_delete = ["texts_as.npz"]
     for file_to_delete in files_to_delete:
         try:
             os.remove(file_to_delete)
