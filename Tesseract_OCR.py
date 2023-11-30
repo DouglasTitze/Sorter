@@ -3,7 +3,7 @@ from time import time
 from PIL import Image
 import pytesseract
 from concurrent.futures import ThreadPoolExecutor
-SEPERATOR_EXT = "*SEPERATOR_EXT*"
+from tqdm import tqdm
 
 class Converter:
     """
@@ -31,30 +31,34 @@ class Converter:
         """
         inp_files = os.listdir(self.folder_path)
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=1) as executor, tqdm(total=len(inp_files), desc="Transcribing Documents") as progress:
+            futures = []
             for file_name in inp_files:
                 file_path = os.path.join(self.folder_path, file_name)
-                executor.submit(self.process_file, file_path, file_name)
+                future = executor.submit(self.process_file, file_path, file_name)
+                futures.append(future)
+
+            for future in futures:
+                future.result()
+                progress.update(1)
 
     def process_file(self, file_path: str, file_name: str):
         """
         Process individual file
         """
         timer_start = time()
-        print(f"Start transcribing {file_name}")
 
         # Convert the file into text
-        raw_image_text = self.image_to_text(file_path)
+        raw_image_text = self._image_to_text(file_path)
         # Write the raw text of the document to a txt file
-        self.create_txt_file(file_name, raw_image_text)
+        self._create_txt_file(file_name, raw_image_text)
 
         # Delete file from "Processed"
         os.remove(file_path)
 
         timer_end = time()
-        print(f"Transcribing completed {timer_end - timer_start}")
 
-    def image_to_text(self, file_path: str) -> str:
+    def _image_to_text(self, file_path: str) -> str:
         """
         Returns the files contents as text
         """
@@ -62,8 +66,16 @@ class Converter:
             # Create output to hold the text of the file
             output = ""
 
-            # Extract the text from the image, and add it to the output string
-            output = pytesseract.image_to_string(Image.open(file_path))
+            # Save file extension to test for edge case (pdf)
+            file_extension = os.path.splitext(os.path.basename(file_path))[1]
+
+            # If the file is a pdf, use its own function
+            if file_extension == ".pdf":
+                # output = self._pdf_to_text(file_path)
+                output = ""
+            else:
+                # Extract the text from the image, and add it to the output string
+                output = pytesseract.image_to_string(Image.open(file_path))
 
             # Return text from the image
             return output
@@ -71,7 +83,7 @@ class Converter:
         except Exception as e:
             raise e
 
-    def create_txt_file(self, file_name: str, text: str, output_folder_path: str="") -> str:
+    def _create_txt_file(self, file_name: str, text: str, output_folder_path: str="") -> str:
         # If no custom output folder path is provided, create one relative to the parent of the input folder
         if not output_folder_path:
             output_folder_path = os.path.join(os.path.dirname(self.folder_path), "TextDocuments")
@@ -81,8 +93,7 @@ class Converter:
             os.makedirs(output_folder_path)
         
         splitFileName = os.path.splitext(file_name)
-        if file_name.find(".pdf") != -1: mutatedFileName = splitFileName[0] + ".txt"
-        else:                            mutatedFileName = splitFileName[0] + SEPERATOR_EXT + splitFileName[1] + SEPERATOR_EXT + ".txt"
+        mutatedFileName = splitFileName[0] + "[" + splitFileName[1] + "]" + ".txt"
         full_txt_path = os.path.join(output_folder_path, mutatedFileName)
 
         # Write text to the .txt file

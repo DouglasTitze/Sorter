@@ -8,18 +8,18 @@ import numpy as np
 from wand.image import Image
 import pypdfium2.raw as pdfium_c
 from concurrent.futures import ThreadPoolExecutor
-SEPERATOR_PAGES = "*SEPERATOR_PAGES*"
-SEPERATOR_EXT = "*SEPERATOR_EXT*"
+
+from tqdm import tqdm
 
 """
 Convert PDF files to PNG images.
-Seperates multi-page documents into multiple PNGs labeled 'SEPERATOR_PAGES0, SEPERATOR_PAGES1, SEPERATOR_PAGES2'.
+Seperates multi-page documents into multiple PNGs labeled '_page0, _page1, _page2'.
 
 Input Folder: Documents
 Output Folder: NotProcessed
 """
 
-def convertPDF(filepath, output_folder, dpi=150):
+def convertPDF(filepath, output_folder, dpi=150, progress_bar=None):
 
     pdf = pdfium_c.FPDF_LoadDocument((filepath+"\x00").encode("utf-8"), None)
 
@@ -66,13 +66,16 @@ def convertPDF(filepath, output_folder, dpi=150):
         img = PIL.Image.frombuffer("RGBA", (width, height), buffer.contents, "raw", "RGBA", 0, 1)
         # Save it as a file
         base_name = os.path.splitext(os.path.basename(filepath))[0]
-        output_filename = f"{base_name}{SEPERATOR_PAGES}{i}{SEPERATOR_PAGES}{SEPERATOR_EXT}.pdf{SEPERATOR_EXT}.png"
+        output_filename = "{}_page{}.png".format(base_name, i)
         output_path = os.path.join(output_folder, output_filename)
         img.save(output_path)
 
         # Free resources
         pdfium_c.FPDFBitmap_Destroy(bitmap)
         pdfium_c.FPDF_ClosePage(page)
+
+        if progress_bar:
+            progress_bar.update(1)
 
     pdfium_c.FPDF_CloseDocument(pdf)
 
@@ -117,25 +120,10 @@ def deskew(np_image):
 
 # Erode then dialtes 
 def dilation_erosion(image):
-    kernel = np.ones((3, 3), np.uint8)
-    
-    # Apply Gaussian blur
-    blurred = cv2.GaussianBlur(image, (3, 3), 0)
+    kernel = np.ones((1, 1), np.uint8) 
 
-    # Adaptive thresholding
-    _, thresholded = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # Opening operation
-    opened = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel)
-
-    # Median filtering
-    median_filtered = cv2.medianBlur(opened, 3)
-
-    # Contour detection and drawing
-    contours, _ = cv2.findContours(median_filtered, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    result = image.copy()
-    for contour in contours:
-        cv2.drawContours(result, [contour], -1, (255, 255, 255), 1)
+    erode = cv2.erode(image, kernel, iterations=1)
+    result = cv2.dilate(erode, kernel, iterations=1)
 
     return result
 
@@ -169,24 +157,37 @@ def process_single_image(input_path, output_path):
 
     # Write processed image to the output
     cv2.imwrite(output_path, result)
-    print(f"\"{os.path.basename(input_path)}\" completed image processing")
 
     # Delete the original image
     os.remove(input_path)
 
 
 def process_pdfs(input_folder='Documents', output_folder='NotProcessed'):
+    pdf_files = [f for f in os.listdir(input_folder) if f.lower().endswith('.pdf')]
 
-    for filename in os.listdir(input_folder):
-        if filename.lower().endswith('.pdf'):
+    # Calculate total number of pages in all PDFs
+    total_pages = 0
+    for filename in pdf_files:
+        filepath = os.path.join(input_folder, filename)
+        pdf = pdfium_c.FPDF_LoadDocument((filepath+"\x00").encode("utf-8"), None)
+        total_pages += pdfium_c.FPDF_GetPageCount(pdf)
+        pdfium_c.FPDF_CloseDocument(pdf)
+
+    # Process PDFs with updated progress bar
+    with tqdm(total=total_pages, desc="Converting PDFs to PNGs") as progress:
+        for filename in pdf_files:
             filepath = os.path.join(input_folder, filename)
-            convertPDF(filepath, output_folder)
+            convertPDF(filepath, output_folder, progress_bar=progress)
 
 def clean_images(input="NotProcessed", output="Processed"):
-
     input_images = os.listdir(input)
 
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        futures = [executor.submit(process_single_image, os.path.join(input, img), os.path.join(output, f"{os.path.splitext(img)[0]}.png")) for img in input_images]
+    with ThreadPoolExecutor(max_workers=1) as executor, tqdm(total=len(input_images), desc="Processing Images") as progress:
+        futures = []
+        for img in input_images:
+            future = executor.submit(process_single_image, os.path.join(input, img), os.path.join(output, f"{os.path.splitext(img)[0]}.png"))
+            futures.append(future)
+
         for future in futures:
             future.result()
+            progress.update(1)
