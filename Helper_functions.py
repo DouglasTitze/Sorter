@@ -34,16 +34,6 @@ def clean_up() -> None:
             shutil.rmtree(directory)
             print(f"Recursively deleted directory: {directory}")
 
-    # Additional handling for files that might still be in use
-    for root, dirs, files in os.walk("NotProcessed"):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            try:
-                os.remove(file_path)
-                print(f"Deleted file: {file_path}")
-            except OSError as e:
-                print(f"Unable to delete file: {file_path} - {e}")
-
     # Delete specific files
     files_to_delete = ["texts_as.npz", "ML_OUT.txt"]
     for file_to_delete in files_to_delete:
@@ -117,7 +107,7 @@ def sort_files(path="Documents") -> None:
             # Try to move documents
             try:
                 shutil.move(source_path, destination_path)
-                print(f"Moved {document_name} to {destination_folder} ({CL}")
+                print(f"Moved {document_name} to {destination_folder.split()[-1]} ({CL}")
 
             except shutil.Error as e:
                 print(f"Error moving {document_name}: {e}")

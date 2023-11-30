@@ -40,17 +40,11 @@ def MASTER_FUNCTION():
         input("\n\nYour files have been sucessfully sorted!\nPlease press any button to exit the program.")
         
     except KeyboardInterrupt:
-        print("Keyboard interrupt detected")
-
-        # Delete leftovers
-        clean_up()
+        raise KeyboardInterrupt
 
     except Exception as e:
-        print(str(e))
-
-        # Delete leftovers
-        clean_up()
-
+        raise Exception
+    
     # Delete leftovers
     clean_up()
 
