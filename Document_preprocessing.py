@@ -184,7 +184,7 @@ def process_pdfs(input_folder='Documents', output_folder='NotProcessed'):
 def clean_images(input="NotProcessed", output="Processed"):
     input_images = os.listdir(input)
 
-    with ThreadPoolExecutor(max_workers=2) as executor, tqdm(total=len(input_images), desc="Processing Images") as progress:
+    with ThreadPoolExecutor(max_workers=6) as executor, tqdm(total=len(input_images), desc="Processing Images") as progress:
         futures = []
         for img in input_images:
             filename, file_extension = os.path.splitext(img)

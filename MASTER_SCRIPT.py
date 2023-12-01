@@ -1,12 +1,14 @@
 from Load_modules import *
 
 def MASTER_FUNCTION():
+    start_t = time.time()
+    num_docs = len(os.listdir('Documents'))
 
     # Create necessary folders
     create_folders()
 
-    # lowerCL, upperCL = get_confidence_levels()
-    lowerCL, upperCL = .45, .57
+    lowerCL, upperCL = get_confidence_levels()
+    # lowerCL, upperCL = .45, .55
     folderPath = 'Documents'
         
     try:
@@ -37,7 +39,8 @@ def MASTER_FUNCTION():
         sort_files()
 
         print("".center(100,"~"))
-        input("\n\nYour files have been sucessfully sorted!\nPlease press any button to exit the program.")
+        input(f"\n\nYour files have been sucessfully sorted\nAverage Number of Documents Sorted per Second: {num_docs/(time.time()-start_t):0.4}\nPlease press any button to exit the program")
+        # print(f"\n\nYour files have been sucessfully sorted\nAverage Number of Documents Sorted per Second: {(num_docs/(time.time()-start_t)):0.4}\nPlease press any button to exit the program")
         
     except KeyboardInterrupt:
         raise KeyboardInterrupt

@@ -44,8 +44,8 @@ def clean_up() -> None:
             print(f"Unable to delete file: {file_to_delete} - {e}")
 
 def get_confidence_levels() -> (int, int):
-    lowerCL = 0.15
-    upperCL = 0.85
+    lowerCL = 0.45
+    upperCL = 0.55
     
     PASSWORD = "1234"
     inpPassword = input("Please enter an administrator password to edit confidence levels: ")
@@ -58,6 +58,7 @@ def get_confidence_levels() -> (int, int):
                 print(f"Your lowerConfidenceLevel is out of the acceptable range, it has been set to the deafault ({lowerCL}).")
             else:
                 lowerCL = userLowerCL
+                print(f"Your lowerConfidenceLevel is now {lowerCL}.")
         except:
             print("Your input was invalid\nTerminating program")
             exit()
@@ -69,6 +70,8 @@ def get_confidence_levels() -> (int, int):
                 print(f"Your upperConfidenceLevel is out of the acceptable range, it has been set to the deafault ({upperCL}).")
             else:
                 upperCL = userUpperCL
+                print(f"Your upperConfidenceLevel is now {upperCL}.")
+
         except:
             print("Your input was invalid\nTerminating program")
             exit()
@@ -107,7 +110,7 @@ def sort_files(path="Documents") -> None:
             # Try to move documents
             try:
                 shutil.move(source_path, destination_path)
-                print(f"Moved {document_name} to {destination_folder.split()[-1]} ({CL}")
+                print(f"Moved {document_name} to {destination_folder.split('/')[-1]} ({CL}")
 
             except shutil.Error as e:
                 print(f"Error moving {document_name}: {e}")
