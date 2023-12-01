@@ -33,7 +33,7 @@ class Converter:
         """
         inp_files = os.listdir(self.folder_path)
 
-        with ThreadPoolExecutor(max_workers=6) as executor, tqdm(total=len(inp_files), desc="Transcribing Documents") as progress:
+        with ThreadPoolExecutor(max_workers=4) as executor, tqdm(total=len(inp_files), desc="Transcribing Documents") as progress:
             futures = []
             for file_name in inp_files:
                 file_path = os.path.join(self.folder_path, file_name)
