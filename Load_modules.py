@@ -25,4 +25,8 @@ print(f"Loading Helper Functions Module".center(100,"~"))
 from Helper_functions import *
 moduleLoadedPrint()
 
+print(f"Loading Keyword Identifier Module".center(100,"~"))
+from Keyword_identifier import *
+moduleLoadedPrint()
+
 print(f"All modules have been sucesfuly loaded".center(100,"~"))

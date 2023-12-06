@@ -29,6 +29,9 @@ def MASTER_FUNCTION():
         # transcribe the images
         transcribe_documents()
 
+        # Sort documents with medical keywords as 'Medical'
+        keywordSort()
+
         # Convert text files to npz format
         compress_text_files()
 
