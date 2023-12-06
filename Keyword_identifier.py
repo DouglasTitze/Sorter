@@ -10,6 +10,12 @@ SEPERATOR_EXT = "*SEPERATOR_EXT*"
 def keywordSort(path='TextDocuments'):
 
     medical_keywords = {
+        "provider",
+        "care plan",
+        "physician",
+        "eob",
+        "dr.",
+        "doctor",
         "diagnosis",
         "treatment",
         "symptoms",
@@ -59,33 +65,36 @@ def keywordSort(path='TextDocuments'):
     # Extract all files from the directory
     files_in_dir = os.listdir(path_to_docs)
 
-    # Iterate through every file in the current folder (financial or medical)
-    for file in files_in_dir:
-        
-        # Check if the file is a txt file, if not continue
-        file_path = os.path.join(path_to_docs, file)
-        if ".txt" != file_path[-4:]: continue
+    with tqdm(total=len(files_in_dir), desc="Keywords Processing") as pbar:
+        # Iterate through every file in the current folder (financial or medical)
+        for file in files_in_dir:
+            
+            # Check if the file is a txt file, if not continue
+            file_path = os.path.join(path_to_docs, file)
+            if ".txt" != file_path[-4:]: continue
 
-        try:
-            with open(file_path,'r', encoding="utf-8") as f: 
-                # Save the file with its actual extension and not .txt
-                fileName, realExtension, _ = file.split(SEPERATOR_EXT)
-                realFileName = fileName.split(SEPERATOR_PAGES)[0] + realExtension
+            try:
+                with open(file_path,'r', encoding="utf-8") as f: 
+                    # Save the file with its actual extension and not .txt
+                    fileName, realExtension, _ = file.split(SEPERATOR_EXT)
+                    realFileName = fileName.split(SEPERATOR_PAGES)[0] + realExtension
 
-                # reading each line    
-                for line in f:
-                    # reading each word        
-                    for word in line.split():
-                        if word in medical_keywords:
-                            move_file(realFileName) 
-                            os.remove(os.path.join(path_to_docs, file))
+                    # reading each line    
+                    for line in f:
+                        # reading each word        
+                        for word in line.split():
+                            if word in medical_keywords:
+                                move_file(realFileName) 
+                                os.remove(os.path.join(path_to_docs, file))
 
-                            break
-                    else:
-                        continue  # only executed if the inner loop did NOT break
-                    break  # only executed if the inner loop DID break     
-        except:
-            print(f"File \"{file}\" failed!")                
+                                break
+                        else:
+                            continue  # only executed if the inner loop did NOT break
+                        break  # only executed if the inner loop DID break     
+            except:
+                print(f"File \"{file}\" failed!")    
+
+            pbar.update(1)            
 
 
 def move_file(document_name, path="Documents") -> None:
@@ -108,7 +117,7 @@ def move_file(document_name, path="Documents") -> None:
     # Try to move documents
     try:
         shutil.move(source_path, destination_path)
-        print(f"Moved {document_name} to {destination_folder.split('/')[-1]}")
+        # print(f"Moved {document_name} to {destination_folder.split('/')[-1]}")
 
     except shutil.Error as e:
         print(f"Error moving {document_name}: {e}")
