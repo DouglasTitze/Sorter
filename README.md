@@ -12,6 +12,8 @@
 ### Helper_functions.py
 - This file contains an assortment of helper functions used throughout the repository.
 - get_confidence_levels - This function is where you are able to set the **admin password** and the default **confidence values**.
+### Keyword_identifier.py
+- This file contains a set of medical keywords that are used to scan files in text form. If any keyword is found in the text file, it will immediately be moved to the `Medical` folder.
 ### Load_modules.py
 - This file loads all required modules into the environment, outputting a message to the console to let the user know these modules are loading.
 ### MASTER_SCRIPT.py

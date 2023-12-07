@@ -2,6 +2,7 @@ import os
 import re
 import time
 import shutil
+from tqdm import tqdm
 
 SEPERATOR_CONFIDENCE = "*SEPERATOR_CONFIDENCE*"
 
@@ -120,4 +121,58 @@ def sort_files(path="Documents") -> None:
                         print(f"Maybe this was an incorrect path?".center(100, "~"))
                         raise Exception
                 THRESHOLD -= 1
+
+
+def append_files(text_folder='TextDocuments'):
+    '''
+    Combine files previously split up by pages
+    '''
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, text_folder)
+
+    # Recognize pattern resulting from conversion of PDF to PNG
+    pattern = re.compile(r'(.+)\*SEPERATOR_PAGES\*(\d+).*\.txt')
+    
+    # List all files that match the pattern
+    filenames = [os.path.join(file_path, f) for f in os.listdir(file_path) if pattern.match(f)]
+    base_files = {}
+
+    # Get base file name for each set of files to be merged 
+    for fname in filenames:
+        match = pattern.match(os.path.basename(fname))
+        base_name, page_num = match.group(1), int(match.group(2))
+        
+        if base_name not in base_files or page_num < base_files[base_name][1]:
+            base_files[base_name] = (fname, page_num)
+
+    total_files = len(filenames) - len(base_files)
+
+    pbar = tqdm(total=total_files, desc="Appending files")
+
+    # Iterate over each base file and append content from other files with the same base name
+    for base_name, (base_filename, _) in base_files.items():
+        # Opens base file for read/write
+        with open(base_filename, "a+", encoding="utf-8") as f:
+            f.seek(0)
+            content = f.read()
+            if not content.endswith('\n'):
+                f.write('\n')
+        
+        # Opens base file to get appended to
+        with open(base_filename, "a", encoding="utf-8") as outfile:
+            for fname in sorted(
+                [f for f in filenames if pattern.match(os.path.basename(f)).group(1) == base_name and f != base_filename],
+                key=lambda x: int(pattern.match(os.path.basename(x)).group(2))
+            ):
+                # Read from each file and append its content to the base file
+                with open(fname, "r", encoding="utf-8") as infile:
+                    outfile.write(infile.read().strip() + "\n")
+
+                # Remove file queue when all files are appended
+                os.remove(fname)
+                pbar.update(1)
+
+    pbar.close()
+
                 

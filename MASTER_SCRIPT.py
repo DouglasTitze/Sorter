@@ -32,6 +32,9 @@ def MASTER_FUNCTION():
         # transcribe the images
         transcribe_documents()
 
+        # Recombine pages of the same document for keyword identification and file compression
+        append_files()
+
         # Sort documents with medical keywords as 'Medical'
         keywordSort()
 
