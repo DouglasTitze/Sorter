@@ -21,7 +21,7 @@ Input Folder: Documents
 Output Folder: NotProcessed
 """
 
-def convertPDF(filepath, output_folder, dpi=300, progress_bar=None):
+def convertPDF(filepath, output_folder, dpi=150, progress_bar=None):
 
     pdf = pdfium_c.FPDF_LoadDocument((filepath+"\x00").encode("utf-8"), None)
 
