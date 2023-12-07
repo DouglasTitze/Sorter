@@ -149,8 +149,8 @@ def process_single_image(input_path, output_path):
     grayscale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Process the image
-    # changeddpi = dpi(grayscale_image)
-    adaptive = thresholding(grayscale_image)
+    changeddpi = dpi(grayscale_image)
+    adaptive = thresholding(changeddpi)
     font = dilation_erosion(adaptive)
     RMborder = remove_borders(font)
     rotImg = deskew(RMborder)

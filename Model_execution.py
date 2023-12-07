@@ -5,7 +5,7 @@ SEPERATOR_CONFIDENCE = "*SEPERATOR_CONFIDENCE*"
 
 
 # This function is responsible for executing the model to sort provided documents
-def run_model(lowerConfidenceLevel = 0.15, upperConfidenceLevel = 0.85):
+def run_model(lowerConfidenceLevel, upperConfidenceLevel):
 
     # Seperator between file name and confidence value
 

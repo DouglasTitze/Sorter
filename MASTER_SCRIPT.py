@@ -11,7 +11,6 @@ def MASTER_FUNCTION():
     create_folders()
 
     lowerCL, upperCL = get_confidence_levels()
-    # lowerCL, upperCL = .45, .55
     folderPath = 'Documents'
         
     try:

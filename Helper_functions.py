@@ -44,38 +44,36 @@ def clean_up() -> None:
         except OSError as e:
             print(f"Unable to delete file: {file_to_delete} - {e}")
 
-def get_confidence_levels() -> (int, int):
-    lowerCL = 0.45
-    upperCL = 0.55
+def get_confidence_levels() -> (float, float):
+    lowerCL = 0.20
+    upperCL = 0.60
     
-    PASSWORD = "1234"
-    inpPassword = input("Please enter an administrator password to edit confidence levels: ")
+    userLowerCL = input("Please enter your desired lowerConfidenceLevel for documents to be classified as Non-Medical: ")
+    userUpperCL = input("Please enter your desired upperConfidenceLevel for documents to be classified as Non-Medical: ")
 
-    if PASSWORD == inpPassword:
-        userLowerCL = input("Please enter your desired lowerConfidenceLevel for documents to be classified as Non-Medical: ")
-        try:
-            userLowerCL = float(userLowerCL)
-            if userLowerCL <= 0 or userLowerCL > lowerCL:
-                print(f"Your lowerConfidenceLevel is out of the acceptable range, it has been set to the deafault ({lowerCL}).")
-            else:
-                lowerCL = userLowerCL
-                print(f"Your lowerConfidenceLevel is now {lowerCL}.")
-        except:
-            print("Your input was invalid\nTerminating program")
-            exit()
+    try:
+        userLowerCL = float(userLowerCL)
+    except ValueError:
+        print("Your input for the lowerConfidenceLevel was invalid\nTerminating program")
+        exit()
 
-        userUpperCL = input("Please enter your desired upperConfidenceLevel for documents to be classified as Non-Medical: ")
-        try:
-            userUpperCL = float(userUpperCL)
-            if userUpperCL >= 1 or userUpperCL < upperCL:
-                print(f"Your upperConfidenceLevel is out of the acceptable range, it has been set to the deafault ({upperCL}).")
-            else:
-                upperCL = userUpperCL
-                print(f"Your upperConfidenceLevel is now {upperCL}.")
+    try:
+        userUpperCL = float(userUpperCL)
+    except ValueError:
+        print("Your input for the upperConfidenceLevel was invalid\nTerminating program")
+        exit()
 
-        except:
-            print("Your input was invalid\nTerminating program")
-            exit()
+    if userLowerCL <= 0 or userLowerCL >= userUpperCL:
+        print(f"Your lowerConfidenceLevel is out of the acceptable range, it has been set to the default ({lowerCL}).")
+    else:
+        lowerCL = userLowerCL
+        print(f"Your lowerConfidenceLevel is now {lowerCL}.")
+
+    if userUpperCL >= 1 or userUpperCL <= userLowerCL:
+        print(f"Your upperConfidenceLevel is out of the acceptable range, it has been set to the default ({upperCL}).")
+    else:
+        upperCL = userUpperCL
+        print(f"Your upperConfidenceLevel is now {upperCL}.")
 
     return lowerCL, upperCL
 
