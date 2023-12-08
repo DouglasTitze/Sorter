@@ -49,7 +49,7 @@ def get_confidence_levels() -> (float, float):
     upperCL = 0.60
     
     userLowerCL = input("Please enter your desired lowerConfidenceLevel for documents to be classified as Non-Medical: ")
-    userUpperCL = input("Please enter your desired upperConfidenceLevel for documents to be classified as Non-Medical: ")
+    userUpperCL = input("Please enter your desired upperConfidenceLevel for documents to be classified as Medical: ")
 
     try:
         userLowerCL = float(userLowerCL)
